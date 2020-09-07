@@ -2,7 +2,7 @@
   "name": "ktbank",
   "version": "1.0.0",
   "description": "KTBank",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +19,10 @@
   "homepage": "https://github.com/DucKhangOn/KTBank#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "express-handlebars": "^5.1.0"
+    "express-handlebars": "^5.1.0",
+    "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5"
   },
   "devDependencies": {
     "morgan": "^1.10.0",

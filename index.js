@@ -5,9 +5,12 @@ const morgan = require('morgan');
 const app = express();
 const port = 3000;
 
+const users=require('./routes/users');
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 //routes
+app.use('/users',users);
 
 //engine
 app.engine('hbs', handlebars({
@@ -22,6 +25,14 @@ console.log(__dirname);
 
 app.get('/', (req, res) => {
   return res.render('home');
+});
+
+app.get('/sync', (req, res) => {
+  let models = require('./models');
+  models.sequelize.sync()
+  .then(()=>{
+      res.send('database sync completed!');
+  });
 });
 
 app.listen(port, () => {
