@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/DucKhangOn/KTBank#readme",
   "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.3",
+    "bootstrap-table": "^1.17.1",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
     "pg": "^8.3.3",
