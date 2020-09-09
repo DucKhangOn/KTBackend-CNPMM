@@ -1,19 +1,23 @@
 const path = require('path');
 const express = require('express');
 const handlebars = require('express-handlebars');
+const Handlebars= require('handlebars');
+const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
 const morgan = require('morgan');
 const app = express();
 const port = 3000;
 
-const users=require('./routes/users');
-
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+const users = require('./routes/users');
 
 //routes
 app.use('/users',users);
 
-//engine
+//view engine
 app.engine('hbs', handlebars({
+  handlebars: allowInsecurePrototypeAccess(Handlebars),
   extname: '.hbs'
 }));
 app.set('view engine', 'hbs');

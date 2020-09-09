@@ -2,7 +2,7 @@ var express= require('express');
 var router= express.Router();
 var bodyParser = require('body-parser')
 var userController= require('../controllers/userController');
- 
+
  
 // create application/json parser
 var jsonParser = bodyParser.json()
@@ -10,6 +10,7 @@ var jsonParser = bodyParser.json()
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+// ---------------------------SIGN-UP---------------------------//
 router.get('/sign-up',(req,res)=>{
     res.render('sign-up');
 })
@@ -25,6 +26,15 @@ router.post('/sign-up',urlencodedParser,(req,res)=>{
         console.log("ThanhCongNha");
     })
     res.render('home');
+})
+
+//---------------------------USER-MANAGE---------------------------//
+router.get('/manage-user',(req,res)=>{
+   userController.findAll()
+   .then(data=>{
+       res.locals.listUsers=data;
+        res.render('manage-user');
+   })      
 })
 
 

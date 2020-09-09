@@ -1,0 +1,26 @@
+<h1>Table</h1>
+<table data-toggle="table"  data-pagination="true" data-search="true">
+    <thead>
+        <tr>
+            <th data-sortable="true" data-field="email">Email</th>
+            <th data-sortable="true" data-field="password">Password</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each listUsers}}
+        <tr>
+            <td>{{email}}</td>
+            <td>{{password}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+
+<script>
+   $(document).ready(function () {
+        $('#dtBasicExample').DataTable({
+            "searching": true // false to disable search (or any other option)
+        });
+        $('.dataTables_length').addClass('bs-select');
+    });
+</script>
