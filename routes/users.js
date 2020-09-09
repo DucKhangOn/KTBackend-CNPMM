@@ -3,7 +3,6 @@ var router= express.Router();
 var bodyParser = require('body-parser')
 var userController= require('../controllers/userController');
 
- 
 // create application/json parser
 var jsonParser = bodyParser.json()
  
@@ -11,8 +10,8 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // ---------------------------SIGN-UP---------------------------//
-router.get('/sign-up',(req,res)=>{
-    res.render('sign-up');
+router.get('/sign-in', (req, res) => {
+    res.render('sign-up-in');
 })
 router.post('/sign-up',urlencodedParser,(req,res)=>{
     console.log(req.body.email);
@@ -28,6 +27,11 @@ router.post('/sign-up',urlencodedParser,(req,res)=>{
     res.render('home');
 })
 
+router.post('/sign-in', urlencodedParser,(req,res)=>{
+   
+    res.render('home');
+})
+
 //---------------------------USER-MANAGE---------------------------//
 router.get('/manage-user',(req,res)=>{
    userController.findAll()
@@ -36,6 +40,5 @@ router.get('/manage-user',(req,res)=>{
         res.render('manage-user');
    })      
 })
-
 
 module.exports = router;
