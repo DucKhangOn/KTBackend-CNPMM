@@ -27,5 +27,37 @@ controller.findAll = () => {
     });
 };
 
+controller.findOne = (email) => {
+    return new Promise((resolve, reject) => {
+        let Obj = { email: email }
+        models.User
+            .findOne({ attributes: ['email', 'password'], where: Obj })
+            .then(data => resolve(data))
+            .catch(error => reject(new Error(error)));
+    });
+};
+
+controller.deleteOne = async (email, callback) => {
+    await models.User.destroy({
+        where: {
+            email: email
+        }
+    }).then(function (user) {
+        callback(null, user);
+    })
+        .catch(function (err) {
+            if (err) throw err;
+            callback(null);
+        });
+};
+
+controller.updateOne = async (user) => {
+    await models.User.update(
+        {password:user.password},
+        {where: {
+            email: user.email
+        }
+    })
+};
 
 module.exports = controller;
