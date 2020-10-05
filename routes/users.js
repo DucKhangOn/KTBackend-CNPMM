@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var bodyParser = require('body-parser')
 var userController = require('../controllers/userController');
+require('isomorphic-fetch');
 
 // create application/json parser
 var jsonParser = bodyParser.json()
@@ -11,6 +12,9 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // ---------------------------SIGN-UP---------------------------//
 router.get('/sign-in', (req, res) => {
+    res.render('sign-up-in');
+})
+router.get('/sign-up', (req, res) => {
     res.render('sign-up-in');
 })
 router.post('/sign-up', urlencodedParser, (req, res) => {
@@ -32,17 +36,32 @@ router.post('/sign-in', urlencodedParser, (req, res) => {
         email: req.body.email,
         password: req.body.password
     }
-    // userController.findOne(user.email).then(data => {
+    // FIND-ONE
+    userController.findOne(user.email).then(data => {
+        if(data){
+            if (data.password == user.password)
+                //set session
+                res.redirect('/');
+        }
+        else {
+            console.log('Dang nhap that bai');
+        }
+    });
+
+    // UPDATE-USER
+    // userController.updateOne(user);
+    // res.render('home');
+
+    // DELETE-USER
+    // userController.deleteOne(user.email).then(data => {
     //     if(data){
-    //         if (data.password == user.password)
-    //             //set session
-    //             res.redirect('/');
+    //         console.log('Xoa thanh cong')
     //     }
     //     else {
-    //         console.log('Dang nhap that bai');
+    //         console.log('Xoa that bai');
     //     }
     // });
-    userController.updateOne(user.email);
+
 })
 
 router.post('/sign-in', urlencodedParser, (req, res) => {
@@ -57,6 +76,16 @@ router.get('/manage-user', (req, res) => {
             res.locals.listUsers = data;
             res.render('manage-user');
         })
+})
+
+router.get('/thongtin',async (req,res)=>{
+    try{
+        const users= await userController.findAll();
+        console.log(users);
+        res.json(users);
+    }catch (err){
+        res.json({message:err});
+    }
 })
 
 module.exports = router;

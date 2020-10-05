@@ -1,20 +1,26 @@
+<link rel="stylesheet" href="/custom/css/table.css">
 <h1>Table</h1>
-<table data-toggle="table"  data-pagination="true" data-search="true">
-    <thead>
-        <tr>
-            <th data-sortable="true" data-field="email">Email</th>
-            <th data-sortable="true" data-field="password">Password</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each listUsers}}
-        <tr>
-            <td>{{email}}</td>
-            <td>{{password}}</td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+<div class="container-table">
+    <table class="responstable h5 mb-0 text-gray-800" data-toggle="table" data-pagination="true" data-search="true"
+        data-size="normal">
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="email">Email</th>
+                <th data-sortable="true" data-field="password">Password</th>
+            </tr>
+        </thead>
+        <tbody class="h6">
+            {{#each listUsers}}
+            <tr>
+                <td>{{email}}</td>
+                <td>{{password}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+</div>
+
 
 {{!-- <script>
    $(document).ready(function () {

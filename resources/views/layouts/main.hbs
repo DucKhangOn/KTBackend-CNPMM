@@ -8,60 +8,60 @@
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-table.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/custom/css/app.css">
 
-    
-    <!-- css -->
-    <link rel="stylesheet" href="/css/style.css" type="text/css" media="all" />
-    <!--// css -->
-    <!-- font-awesome icons -->
-    <link href="/css/font-awesome.css" rel="stylesheet">
-    <!-- //font-awesome icons -->
-    <!-- font -->
-    <link href="//fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
-    <link href="//fonts.googleapis.com/css?family=Crimson+Text:400,400i,600,600i,700,700i" rel="stylesheet">
-    <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,700italic,700,400italic,300italic,300'
-        rel='stylesheet' type='text/css'>
-    <!-- //font -->
-    <script src="/js/jquery-1.11.1.min.js"></script>
-    <script src="/js/bootstrap.js"></script>
-   
-    <!-- flexslider -->
-    <link rel="stylesheet" href="css/flexslider.css" type="text/css" media="screen" />
-    <!-- //flexslider -->
+    <link rel="stylesheet" href="/custom/css/app.css">
+    {{!-- <link rel="stylesheet" href="/custom/css/getConvert.css"> --}}
 </head>
 
 <body>
     <div class="app">
+    
+    <nav class="lv3-navbar bg-primary-lighter" style="position: fixed">
+        <a href="#" class="btn-expand-collapse text-left border-top"><i
+                class="fa fa-arrow-left text-primary-light"></i></a>
+        <ul class="lv3-navbar-menu">
+            <li class="text-center">
+                <a href="#" class="active"><i class="fa fa-lock mr-2"> </i> <span class="nav-label">trending
+                        #tags</span></a>
+            </li>
+            <li class="text-center">
+                <a href="#" class=""><i class="fa fa-unlock mr-2"> </i><span class="nav-label">popular #tags</span></a>
+            </li>
+        </ul>
+    </nav>
 
-        {{> header}}
+    <div class="main-content">
+        <div class="container-fluid ">
+            <div class="row">
+                <div class="col-4 bg-danger">
+                    11
+                </div>
+                <div class="col-8 bg-dark">
+                    12
+                </div>
+               
+            </div>
+        </div>
 
-        {{{body}}}
-
-        {{> footer}}
-
+        <div style="width: 100%;">
+            {{> header}}
+        
+            {{{body}}}
+        
+            {{> footer}}
+        
+        </div>
+    </div>
+     
     </div>
     <script src="/js/jquery-3.5.1.js"></script>
     <script src="/js/popper.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/bootstrap-table.min.js"></script>
 
-    <script src="/js/jarallax.js"></script>
-    <script src="/js/SmoothScroll.min.js"></script>
-    <script type="text/javascript">
-        /* init Jarallax */
-        $('.jarallax').jarallax({
-            speed: 0.5,
-            imgWidth: 1366,
-            imgHeight: 768
-        })
-    </script>
-    <script src="/js/responsiveslides.min.js"></script>
-    <script type="text/javascript" src="/js/move-top.js"></script>
-    <script type="text/javascript" src="/js/easing.js"></script>
-    <!-- here stars scrolling icon -->
-    
-    <!-- //FlexSlider -->
+ 
+    <script src="/custom/js/app.js"></script>
 </body>
 
 </html>
+

@@ -4,7 +4,8 @@
   "description": "KTBank",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/index.js",
+    "start": "nodemon index.js",
+    "watch": "node-sass resources/public/custom/scss/convert.scss resources/public/custom/css/getConvert.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,14 +21,17 @@
   "dependencies": {
     "@handlebars/allow-prototype-access": "^1.0.3",
     "bootstrap-table": "^1.17.1",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
+    "isomorphic-fetch": "^3.0.0",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5"
   },
   "devDependencies": {
     "morgan": "^1.10.0",
+    "node-sass": "^4.14.1",
     "nodemon": "^2.0.4"
   }
 }

@@ -1,17 +1,92 @@
-/* gradient  */
-.text-gradient {
-    font-weight: bold;
-    font-size: 4rem;
-    display: inline-block;
-    color: var(--purple);
+@charset "uft-8";
+
+
+/* NAVBAR LEFT */
+
+.bg-primary-lighter {
+    background-color: #e7f4ff;
 }
 
-@supports (-webkit-background-clip: text) {
-    .text-gradient {
-        color: transparent;
-        background-image: var(--gradient);
-        -webkit-background-clip: text;
-    }
+.text-primary-light {
+    color: #198cdc;
+}
+
+.lv3-navbar {
+    bottom: 0px;
+    left: 0px;
+    position: absolute;
+    top: 0;
+    width: 200px;
+    z-index: 8;
+    overflow: hidden;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.lv3-collapsed {
+    width: 60px;
+}
+
+.lv3-collapsed .nav-label {
+    display: none;
+}
+
+.btn-expand-collapse {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    width: 100%;
+    padding: 8px 20px;
+    border-top: solid 1px #666;
+    color: grey;
+    font-size: 16px;
+    text-align: center;
+}
+
+.btn-expand-collapse:hover, .btn-expand-collapse:focus {
+    color: white;
+}
+
+.btn-expand-collapse:active {
+    background-color: #111;
+}
+
+.lv3-navbar-menu, .lv3-navbar li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lv3-navbar-menu li a {
+    display: block;
+    padding: 10px 18px;
+    text-align: left;
+    color: #495057;
+}
+
+.lv3-navbar-menu li a:hover {
+    border-left: solid 3px #198cdc;
+    text-decoration: none;
+    color: #198cdc;
+}
+
+.lv3-navbar-menu li a.active {
+    border-left: solid 3px #198cdc;
+    text-decoration: none;
+    color: #198cdc;
+}
+
+.main-content {
+    margin-left: 200px;
+}
+
+.lv3-collapsed+.main-content {
+    margin-left: 60px;
+}
+
+.lv3-navbar.lvl3-collapsed {
+    width: 60px;
 }
 
 /* LOGIN */
@@ -19,7 +94,8 @@
 .bodyLogin {
     margin: 0;
     color: #6a6f8c;
-    background: #aca7a7;
+    /* background: #aca7a7; */
+    background: url(/images/login-bg.jpg) no-repeat center;
     font: 600 16px/18px 'Open Sans', sans-serif;
 }
 
@@ -48,7 +124,7 @@ a {
     max-width: 525px;
     min-height: 670px;
     position: relative;
-    background: url(/img/login-bg.jpg) no-repeat center;
+    /* background: url(/images/login-bg.jpg) no-repeat center; */
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, .24), 0 17px 50px 0 rgba(0, 0, 0, .19);
 }
 

@@ -43,7 +43,7 @@ controller.deleteOne = async (email, callback) => {
             email: email
         }
     }).then(function (user) {
-        callback(null, user);
+        callback(null);
     })
         .catch(function (err) {
             if (err) throw err;
@@ -52,9 +52,9 @@ controller.deleteOne = async (email, callback) => {
 };
 
 controller.updateOne = async (user) => {
-    await models.User.update(
-        {password:user.password},
-        {where: {
+    await models.User.update({
+        password: user.password},{
+        where: {
             email: user.email
         }
     })
