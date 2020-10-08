@@ -2,16 +2,18 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@handlebars/allow-prototype-access": "^1.0.3",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
     "isomorphic-fetch": "^3.0.0",
+    "jsonwebtoken": "^8.5.1",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5"
