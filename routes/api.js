@@ -13,7 +13,8 @@ router.post('/users/login', async (req, res) => {
     } else {
         jwt.sign({ user }, 'kkkk', { expiresIn: '0.5h' }, (err, token) => {
             res.json({
-                token
+                token,
+                user
             });
         });
     }
@@ -46,6 +47,68 @@ router.post('/users', async (req, res) => {
             result: 'failed',
             user: {},
             message: `Insert a new User failed. Error: ${error}`
+        });
+    }
+});
+
+//Update data in DB
+router.put('/users/:id', async (req, res) => {
+    const {id} = req.params;
+    const { email, password } = req.body;
+    try {
+        let users = await models.User.findAll({
+            attributes: ['id', 'email', 'password'],
+            where: {
+                id
+            }
+        });
+        if(users.length > 0) {
+            users.forEach(async (user) => {
+              await user.update({
+                  email: email ? email : user.email,
+                  password: password ? password : user.password,
+              });  
+            });
+            res.json({
+                result: 'ok',
+                data: users,
+                message: "update a User successfully"
+            });
+        } else {
+            res.json({
+                result: 'failed',
+                data: {},
+                message: "Cannot find User to update"
+            });
+        }
+    } catch(error) {
+        res.json({
+            result: 'failed',
+            data: {},
+            message: `Cannot update a User. Error: ${error}`
+        });
+    }
+});
+
+//Delete a User
+router.delete('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await models.User.destroy({
+            where: {
+                id: id
+            }
+        });
+        res.json({
+            result: 'ok',
+            message: "Delete a User successfully",
+            id: id
+        });	
+    } catch (error) {
+        res.json({
+            result: 'failed',
+            data: {},
+            message: `Delete a User failed. Error: ${error}`
         });
     }
 });
