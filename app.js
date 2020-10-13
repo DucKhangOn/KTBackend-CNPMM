@@ -15,6 +15,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const allowedOrigins = ["http://localhost:5000", "http://localhost:4200"];
+//const allowedOrigins = ["http://127.0.0.1:5500", "http://localhost:5000"];
 
 app.use(
   cors({

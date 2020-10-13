@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const models = require('../models');
 const jwt = require('jsonwebtoken');
+const userController =require('../controllers/userController');
 
-//Login
+//----------------------------UserController {6..152}
+//----Methor Post
+//Check Login
 router.post('/users/login', async (req, res) => {
-    let { email, password } = req.body;
-
-    const user = await models.User.findOne({ where: { email: email, password: password } });
+    const user = await userController.getUser(req.body);
+    console.log(user);
     if (user === null) {
         console.log('Not found!');
     } else {
@@ -20,16 +21,10 @@ router.post('/users/login', async (req, res) => {
     }
 });
 
-//Create User
+//Create a User
 router.post('/users', async (req, res) => {
-    let { email, password } = req.body;
     try {
-        let newUser = await models.User.create({
-            email,
-            password
-        }, {
-            fields: ["email", "password"]
-        });
+        let newUser = await userController.createUser(req.body);
         if (newUser) {
             res.json({
                 result: 'ok',
@@ -51,27 +46,18 @@ router.post('/users', async (req, res) => {
     }
 });
 
-//Update data in DB
+//----Methor Put
+//Update a User
 router.put('/users/:id', async (req, res) => {
     const {id} = req.params;
     const { email, password } = req.body;
     try {
-        let users = await models.User.findAll({
-            attributes: ['id', 'email', 'password'],
-            where: {
-                id
-            }
-        });
-        if(users.length > 0) {
-            users.forEach(async (user) => {
-              await user.update({
-                  email: email ? email : user.email,
-                  password: password ? password : user.password,
-              });  
-            });
+        let user = await userController.findUserById(id);
+        if(user) {
+            await userController.updateUser(user,req.body);
             res.json({
                 result: 'ok',
-                data: users,
+                data: user,
                 message: "update a User successfully"
             });
         } else {
@@ -90,15 +76,12 @@ router.put('/users/:id', async (req, res) => {
     }
 });
 
+//----Methor Put
 //Delete a User
 router.delete('/users/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        await models.User.destroy({
-            where: {
-                id: id
-            }
-        });
+        await userController.deteleUser(id);
         res.json({
             result: 'ok',
             message: "Delete a User successfully",
@@ -113,43 +96,11 @@ router.delete('/users/:id', async (req, res) => {
     }
 });
 
-//Get Users with verifyToken
-// router.get('/users', verifyToken, (req, res) => {
-//     jwt.verify(req.token, 'kkkk', async (err, authData) => {
-//         if (err) {
-//             res.sendStatus(403);
-//         } else {
-//             try {
-//                 const users = await models.User.findAll({
-//                     attributes: ['id', 'email', 'password'],
-//                 });
-//                 res.json({
-//                     result: 'ok',
-//                     user: users,
-//                     length: users.length,
-//                     message: "query list of Users successfully",
-//                     authData
-//                 });
-//             } catch (error) {
-//                 res.json({
-//                     result: 'failed',
-//                     user: [],
-//                     length: 0,
-//                     message: `query list of Users failed. Error: ${error}`,
-//                     authData
-//                 });
-//             }
-//         }
-//     });
-
-// });
-
-//Get all Users
+//----Methor Get
+//Get All Users
 router.get('/users', async (req, res) => {
     try {
-        const users = await models.User.findAll({
-            attributes: ['id', 'email', 'password'],
-        });
+        const users = await userController.FindAll();
         res.json({
             result: 'ok',
             user: users,
@@ -162,6 +113,26 @@ router.get('/users', async (req, res) => {
             user: [],
             length: 0,
             message: `query list of Users failed. Error: ${error}`,
+        });
+    }
+});
+
+//Get User By Id
+router.get('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await userController.findUserById(id);
+        res.json({
+            result: 'ok',
+            user: user,
+            message: "query a User successfully",
+        });
+    } catch (error) {
+        res.json({
+            result: 'failed',
+            user: [],
+            length: 0,
+            message: `query a User failed. Error: ${error}`,
         });
     }
 });
