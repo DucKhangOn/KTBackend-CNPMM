@@ -1,22 +1,59 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const userController =require('../controllers/userController');
+const userController = require('../controllers/userController');
+const bcrypt = require('bcrypt')
 
 //----------------------------UserController {6..152}
 //----Methor Post
 //Check Login
 router.post('/users/login', async (req, res) => {
-    const user = await userController.getUser(req.body);
-    console.log(user);
-    if (user === null) {
+    const user = await userController.findUserByEmail(req.body.email);
+    if (user == null) {
         console.log('Not found!');
     } else {
-        jwt.sign({ user }, 'kkkk', { expiresIn: '0.5h' }, (err, token) => {
-            res.json({
-                token,
-                user
+        var isMatch = await bcrypt.compare(req.body.password, user.password);
+        console.log(isMatch);
+        if (isMatch) {
+            jwt.sign({ user }, 'kkkk', { expiresIn: '0.5h' }, (err, token) => {
+                res.json({
+                    token,
+                    user
+                });
             });
+        }
+        else {
+            res.json({
+                message: "Login failed"
+            });
+        }
+    }
+});
+
+//Register
+router.post('/users/register', async (req, res) => {
+    try {
+        await bcrypt.hash(req.body.password, 10, async (err, hash) => {
+            req.body.password = hash;
+            let newUser = await userController.createUser(req.body);
+            if (newUser) {
+                res.json({
+                    result: 'ok',
+                    user: newUser
+                });
+            } else {
+                res.json({
+                    result: 'failed',
+                    user: {},
+                    message: `Insert a new User failed`
+                });
+            }
+        });
+    } catch (error) {
+        res.json({
+            result: 'failed',
+            user: {},
+            message: `Insert a new User failed. Error: ${error}`
         });
     }
 });
@@ -49,12 +86,12 @@ router.post('/users', async (req, res) => {
 //----Methor Put
 //Update a User
 router.put('/users/:id', async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
     const { email, password } = req.body;
     try {
         let user = await userController.findUserById(id);
-        if(user) {
-            await userController.updateUser(user,req.body);
+        if (user) {
+            await userController.updateUser(user, req.body);
             res.json({
                 result: 'ok',
                 data: user,
@@ -67,7 +104,7 @@ router.put('/users/:id', async (req, res) => {
                 message: "Cannot find User to update"
             });
         }
-    } catch(error) {
+    } catch (error) {
         res.json({
             result: 'failed',
             data: {},
@@ -86,7 +123,7 @@ router.delete('/users/:id', async (req, res) => {
             result: 'ok',
             message: "Delete a User successfully",
             id: id
-        });	
+        });
     } catch (error) {
         res.json({
             result: 'failed',
