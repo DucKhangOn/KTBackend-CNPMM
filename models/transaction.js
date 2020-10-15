@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
     comment:DataTypes.STRING,
     }, {});
   Transaction.associate = function (models) {
-      
+      Transaction.belongsTo(models.BankAccount, { foreignKey: "id" });
+      Transaction.belongsTo(models.TransactionFee, { foreignKey: "id" });
   };
   return Transaction;
 };

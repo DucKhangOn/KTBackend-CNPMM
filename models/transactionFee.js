@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
     fee:DataTypes.STRING,
     }, {});
   TransactionFee.associate = function (models) {
-
+      TransactionFee.hasOne(models.Transaction);
   };
   return TransactionFee;
 };

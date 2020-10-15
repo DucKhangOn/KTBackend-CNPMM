@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     isFinalSettlement:DataTypes.STRING,
   }, {});
   SavingsAccount.associate = function (models) {
-
+      SavingsAccount.belongsTo(models.BankAccount, { foreignKey: "id" });
+      SavingsAccount.belongsTo(models.RateInterest, { foreignKey: "id" });
   };
   return SavingsAccount;
 };

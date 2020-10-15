@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     type:DataTypes.STRING,
   }, {});
   Card.associate = function (models) {
-
+    Card.belongsTo(models.BankAccount, { foreignKey: "id" });
   };
   return Card;
 };

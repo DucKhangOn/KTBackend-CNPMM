@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     rateInterest: DataTypes.STRING,
     }, {});
   RateInterest.associate = function (models) {
-
+       RateInterest.hasOne(models.SavingsAccount);
   };
   return RateInterest;
 };
