@@ -8,12 +8,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     number: DataTypes.STRING,
     rateInterestType: DataTypes.STRING,
-    balance:DataTypes.STRING,
-    isFinalSettlement:DataTypes.STRING,
+    balance: DataTypes.DOUBLE,
+    isFinalSettlement: DataTypes.BOOLEAN
   }, {});
   SavingsAccount.associate = function (models) {
-      SavingsAccount.belongsTo(models.BankAccount, { foreignKey: "id" });
-      SavingsAccount.belongsTo(models.RateInterest, { foreignKey: "id" });
+    SavingsAccount.belongsTo(models.BankAccount, { foreignKey: "id" });
+    SavingsAccount.belongsTo(models.RateInterest, { foreignKey: "id" });
   };
   return SavingsAccount;
 };

@@ -7,11 +7,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     name: DataTypes.STRING,
-    amountLimit: DataTypes.STRING,
-    fee:DataTypes.STRING,
-    }, {});
+    amountLimit: DataTypes.DOUBLE,
+    fee: DataTypes.DOUBLE
+  }, {});
   TransactionFee.associate = function (models) {
-      TransactionFee.hasOne(models.Transaction);
+    TransactionFee.hasMany(models.Transaction);
   };
   return TransactionFee;
 };

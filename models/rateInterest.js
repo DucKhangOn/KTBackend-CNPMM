@@ -6,11 +6,11 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    term: DataTypes.STRING,
-    rateInterest: DataTypes.STRING,
-    }, {});
+    term: DataTypes.INTEGER,
+    rateInterest: DataTypes.DOUBLE
+  }, {});
   RateInterest.associate = function (models) {
-       RateInterest.hasOne(models.SavingsAccount);
+    RateInterest.hasMany(models.SavingsAccount);
   };
   return RateInterest;
 };

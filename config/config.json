@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "postgres",
-    "password": "Postgres",
-    "database": "ktbankTest",
+    "password": "admin",
+    "database": "banking",
     "host": "localhost",
     "dialect": "postgres"
   },

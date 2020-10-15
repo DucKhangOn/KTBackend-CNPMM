@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     name: DataTypes.STRING,
-    isFriend: DataTypes.STRING
+    isFriend: DataTypes.BOOLEAN
   }, {});
   Bank.associate = function (models) {
 

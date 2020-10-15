@@ -7,9 +7,9 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     cardNumber: DataTypes.STRING,
-    expiredDate: DataTypes.STRING,
-    isLocked:DataTypes.STRING,
-    type:DataTypes.STRING,
+    expiredDate: DataTypes.DATE,
+    isLocked: DataTypes.BOOLEAN,
+    type: DataTypes.STRING
   }, {});
   Card.associate = function (models) {
     Card.belongsTo(models.BankAccount, { foreignKey: "id" });

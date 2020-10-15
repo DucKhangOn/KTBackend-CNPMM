@@ -7,14 +7,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     bankCardNumber: DataTypes.STRING,
-    banlance: DataTypes.STRING,
+    balance: DataTypes.DOUBLE,
     branch: DataTypes.STRING
   }, {});
   BankAccount.associate = function (models) {
-    BankAccount.belongsTo(models.User,{foreignKey:'id'});
-    BankAccount.hasOne(models.SavingsAccount);
-    BankAccount.hasOne(models.Transaction);
-    BankAccount.hasOne(models.Card);
+    BankAccount.belongsTo(models.User, { foreignKey: 'id' });
+    BankAccount.hasMany(models.SavingsAccount);
+    BankAccount.hasMany(models.Transaction);
+    BankAccount.hasMany(models.Card);
   };
   return BankAccount;
 };

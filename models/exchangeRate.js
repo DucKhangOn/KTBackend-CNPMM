@@ -7,8 +7,8 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     unit: DataTypes.STRING,
-    vnd: DataTypes.STRING,
-    }, {});
+    vnd: DataTypes.DOUBLE
+  }, {});
   ExchangeRate.associate = function (models) {
 
   };
