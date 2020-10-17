@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const morgan = require('morgan');
 const path = require('path');
 const handlebars = require('express-handlebars');
-const Handlebars= require('handlebars');
+const Handlebars = require('handlebars');
 const { allowInsecurePrototypeAccess } = require('@handlebars/allow-prototype-access')
 const port = 5000;
 const api = require('./routes/api');
@@ -30,7 +30,7 @@ app.use(
       return callback(null, true);
     }
   })
-); 
+);
 
 //routes
 app.use('/api', api);
@@ -50,11 +50,34 @@ console.log(__dirname);
 //app.use(morgan('combined')) 
 
 app.get('/', (req, res) => {
-   res.render('home');
+  res.render('home');
 });
 
 app.get('/sync', (req, res) => {
   let models = require('./models');
+  //1
+  models.User.sync().then(() => {
+    models.Bank.sync();
+  }).then(() => {
+    models.TransactionFee.sync();
+  }).then(() => {
+    models.Service.sync();
+  }).then(() => {
+    models.ExchangeRate.sync();
+  }).then(() => {
+    models.RateInterest.sync();
+  }).then(() => {
+    models.BankAccount.sync();
+  }).then(() => {
+    models.SavingsAccount.sync();
+  }).then(() => {
+    models.Card.sync();
+  }).then(() => {
+    models.Transaction.sync();
+  }).then(() => {
+    res.send('database sync completed!');
+  });
+
   // //1
   // models.User.sync();
   // models.Bank.sync();
@@ -68,12 +91,12 @@ app.get('/sync', (req, res) => {
   // models.Transaction.sync();
   // models.Card.sync();
   // models.SavingsAccount.sync();
-  
-  models.sequelize.sync()
-  .then(()=>{
-      res.send('database sync completed!');
-  });
-  res.send("database sync completed!");
+
+  // models.sequelize.sync()
+  //   .then(() => {
+  //     res.send('database sync completed!');
+  //   });
+  // res.send("database sync completed!");
 });
 
 app.listen(port, () => {
