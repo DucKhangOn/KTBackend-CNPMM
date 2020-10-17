@@ -55,7 +55,6 @@ app.get('/', (req, res) => {
 
 app.get('/sync', (req, res) => {
   let models = require('./models');
-  //1
   models.User.sync().then(() => {
     models.Bank.sync();
   }).then(() => {
@@ -77,26 +76,6 @@ app.get('/sync', (req, res) => {
   }).then(() => {
     res.send('database sync completed!');
   });
-
-  // //1
-  // models.User.sync();
-  // models.Bank.sync();
-  // models.TransactionFee.sync();
-  // models.Service.sync();
-  // models.ExchangeRate.sync();
-  // models.RateInterest.sync();
-  // //2
-  // models.BankAccount.sync();
-  // //3
-  // models.Transaction.sync();
-  // models.Card.sync();
-  // models.SavingsAccount.sync();
-
-  // models.sequelize.sync()
-  //   .then(() => {
-  //     res.send('database sync completed!');
-  //   });
-  // res.send("database sync completed!");
 });
 
 app.listen(port, () => {

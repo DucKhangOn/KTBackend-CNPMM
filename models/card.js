@@ -6,10 +6,22 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    cardNumber: DataTypes.STRING,
-    expiredDate: DataTypes.DATE,
-    isLocked: DataTypes.BOOLEAN,
-    type: DataTypes.STRING
+    cardNumber: {
+      type:DataTypes.STRING,
+      allowNull: false,
+    },
+    expiredDate:{
+      type: DataTypes.DATE,
+      allowNull:false
+    } ,
+    isLocked: {
+      type:DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    type:{
+      type: DataTypes.STRING,
+      allowNull:false,
+    },
   }, {});
   Card.associate = function (models) {
     Card.belongsTo(models.BankAccount, { foreignKey: "id" });

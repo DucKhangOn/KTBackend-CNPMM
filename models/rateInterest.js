@@ -6,8 +6,14 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    term: DataTypes.INTEGER,
-    rateInterest: DataTypes.DOUBLE
+    term:{
+       type: DataTypes.INTEGER,
+       allowNull:false,
+      },
+    rateInterest: {
+      type: DataTypes.DOUBLE,
+      allowNull:false,
+    },
   }, {});
   RateInterest.associate = function (models) {
     RateInterest.hasMany(models.SavingsAccount);

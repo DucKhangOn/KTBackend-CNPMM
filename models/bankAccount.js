@@ -6,9 +6,19 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    bankCardNumber: DataTypes.STRING,
-    balance: DataTypes.DOUBLE,
-    branch: DataTypes.STRING
+    bankCardNumber:{
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    balance: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    branch: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
   }, {});
   BankAccount.associate = function (models) {
     BankAccount.belongsTo(models.User, { foreignKey: 'id' });

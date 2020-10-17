@@ -6,11 +6,26 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    sourceBank: DataTypes.STRING,
-    desBank: DataTypes.STRING,
-    amount: DataTypes.DOUBLE,
-    transactionType: DataTypes.STRING,
-    status: DataTypes.STRING,
+    sourceBank: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    desBank: {
+      type: DataTypes.STRING,
+      allowNull:false,
+    },
+    amount: {
+      type:DataTypes.DOUBLE,
+      allowNull: false,
+    },
+    transactionType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allow: false,
+    },
     comment: DataTypes.STRING
   }, {});
   Transaction.associate = function (models) {

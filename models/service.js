@@ -6,8 +6,15 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    name: DataTypes.STRING,
-    fee: DataTypes.DOUBLE
+    name: {
+      type: DataTypes.STRING,
+      allowNull:false,
+      unique: true,
+    },
+    fee: {
+      type: DataTypes.DOUBLE,
+      allowNull:false
+    },
   }, {});
   Service.associate = function (models) {
     Service.hasMany(models.Transaction);

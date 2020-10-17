@@ -1,24 +1,51 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+  const User = sequelize.define(
+    "User",
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      idAdmin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+      },
+      firstName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      lastName: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      gender: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
-    idAdmin: DataTypes.BOOLEAN,
-    firstName: DataTypes.STRING,
-    lastName: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    gender: DataTypes.STRING,
-    address: DataTypes.STRING
-  }, {});
+    {}
+  );
   User.associate = function (models) {
     User.hasOne(models.BankAccount);
   };
   return User;
 };
-
-

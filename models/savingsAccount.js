@@ -6,10 +6,22 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    number: DataTypes.STRING,
-    rateInterestType: DataTypes.STRING,
-    balance: DataTypes.DOUBLE,
-    isFinalSettlement: DataTypes.BOOLEAN
+    number:{
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    rateInterestType: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    balance:{
+      type: DataTypes.DOUBLE,
+      allowNull: false,  
+    },
+    isFinalSettlement:{
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    },
   }, {});
   SavingsAccount.associate = function (models) {
     SavingsAccount.belongsTo(models.BankAccount, { foreignKey: "id" });

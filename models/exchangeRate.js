@@ -6,8 +6,15 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       primaryKey: true
     },
-    unit: DataTypes.STRING,
-    vnd: DataTypes.DOUBLE
+    unit: {
+      type: DataTypes.STRING,
+      allowNull:false,
+      unique: true,
+    },
+    vnd: {
+      type: DataTypes.DOUBLE,
+      allowNull:false,
+    },
   }, {});
   ExchangeRate.associate = function (models) {
 
