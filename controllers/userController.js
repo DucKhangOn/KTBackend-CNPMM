@@ -1,59 +1,60 @@
-var controller = {}
+var controller = {};
 
-const models = require('../models');
+const { sequelize } = require("../models");
+const models = require("../models");
 
-//Create
+//Create (Register)
 controller.createUser = async (body) => {
-    let { email, password } = body;
-    return await models.User.create({
-        email,
-        password
-    }, {
-        fields: ["email", "password"]
+  return await sequelize
+    .transaction((t) => {
+      return models.User.create({ ...body, isAdmin: false });
+    })
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      return err;
     });
-}
+};
 //Read
+controller.FindAllUser = async () => {
+  return await models.User.findAll({
+    attributes: ["id", "email", "password"],
+  });
+};
 controller.FindAll = async () => {
-    return await models.User.findAll({
-        attributes: ['id', 'email', 'password'],
-    });
-}
+  return await models.User.findAll();
+};
 
 controller.findUserById = async (id) => {
-    return await models.User.findOne({
-        attributes: ['id', 'email', 'password'],
-        where: {
-            id
-        }
-    });
-}
-
-controller.getUser = async (body) => {
-    let { email, password } = body;
-    return await models.User.findOne({ where: { email: email, password: password } });
-}
+  return await models.User.findOne({
+    where: { id: id },
+  });
+};
 
 controller.findUserByEmail = async (email) => {
-    return await models.User.findOne({ where: { email: email } });
-}
+  return await models.User.findOne({ where: { email: email } });
+};
 
 //Update
 controller.updateUser = async (user, body) => {
-    let { email, password } = body;
-    return await user.update({
-        email: email ? email : user.email,
-        password: password ? password : user.password
-    }
-    );
-}
+  return await user
+    .update({
+      ...body,
+    })
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
 
 //Delete
-controller.deteleUser = async (id) => {
-    return await models.User.destroy({
-        where: {
-            id: id
-        }
-    })
-}
+controller.deteleUserById = async (id) => {
+  return await models.User.destroy({
+    where: { id: id },
+  });
+};
 
 module.exports = controller;

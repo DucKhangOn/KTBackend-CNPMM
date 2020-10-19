@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      idAdmin: {
+      isAdmin: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
       },
