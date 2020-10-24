@@ -3,6 +3,11 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const userController = require("../controllers/userController");
 const bankController = require("../controllers/bankController");
+const bankAccountController=require("../controllers/bankAccountController");
+const transactionFeeController=require("../controllers/transactionFeeController");
+const serviceController= require("../controllers/serviceController");
+const exchangeRateController = require("../controllers/exchangeRateController");
+const rateInterestController= require("../controllers/rateInterestController");
 const bcrypt = require("bcrypt");
 
 //----------------------------UserController
@@ -279,7 +284,9 @@ router.get("/banks/:id", async (req, res) => {
 //Methor Post
 router.post("/transactionFees", async (req, res) => {
   try {
-    let newTransactionFee = await transactionFeeController.createTransactionFee(req.body);
+    let newTransactionFee = await transactionFeeController.createTransactionFee(
+      req.body
+    );
     newTransactionFee.errors
       ? res.json({ result: "failed", transactionFee: newTransactionFee })
       : res.json({ result: "ok", transactionFee: newTransactionFee });
@@ -313,9 +320,14 @@ router.delete("/transactionFees/:id", async (req, res) => {
 router.put("/transactionFees/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    let transactionFee = await transactionFeeController.FindTransactionFeeByID(id);
+    let transactionFee = await transactionFeeController.FindTransactionFeeByID(
+      id
+    );
     if (transactionFee) {
-      await transactionFeeController.updateTransactionFee(transactionFee, req.body);
+      await transactionFeeController.updateTransactionFee(
+        transactionFee,
+        req.body
+      );
       res.json({
         result: "ok",
         data: transactionFee,
@@ -359,7 +371,9 @@ router.get("/transactionFees", async (req, res) => {
 router.get("/transactionFees/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const transactionFee = await transactionFeeController.FindTransactionFeeByID(id);
+    const transactionFee = await transactionFeeController.FindTransactionFeeByID(
+      id
+    );
     res.json({
       result: "ok",
       transactionFee: transactionFee,
@@ -474,7 +488,7 @@ router.get("/services/:id", async (req, res) => {
     });
   }
 });
-	
+
 //----------------------------ExchangeRateController
 //Methor Post
 router.post("/exchangeRates", async (req, res) => {
@@ -579,7 +593,9 @@ router.get("/exchangeRates/:id", async (req, res) => {
 //Methor Post
 router.post("/rateInterests", async (req, res) => {
   try {
-    let newRateInterest = await rateInterestController.createRateInterest(req.body);
+    let newRateInterest = await rateInterestController.createRateInterest(
+      req.body
+    );
     newRateInterest.errors
       ? res.json({ result: "failed", rateInterest: newRateInterest })
       : res.json({ result: "ok", rateInterest: newRateInterest });
@@ -674,7 +690,49 @@ router.get("/rateInterests/:id", async (req, res) => {
     });
   }
 });
+//---------------------------BankAccountController
+router.post("/bankAccounts", async (req, res) => {
+  try {
+    let user = await userController.findUserById(req.body.userId);
+    if (user != null) {
+       let newbankAccount=await bankAccountController.createBankAccount(req.body);
+       newbankAccount.errors
+         ? res.json({ result: "failed", bankAccount: newbankAccount })
+         : res.json({ result: "ok", bankAccount: newbankAccount });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: `User invaiable. Please choose another user`,
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot update a BankAccount. Error: ${error}`,
+    });
+  }
+});
 
+router.get("/bankAccounts", async (req, res) => {
+  try {
+    const bankAccounts = await bankAccountController.FindAll();
+    res.json({
+      result: "ok",
+      rateInterest: bankAccounts,
+      length: bankAccounts.length,
+      message: "query list of RateInterests successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      rateInterest: [],
+      length: 0,
+      message: `query list of BankAccounts failed. Error: ${error}`,
+    });
+  }
+});
 //Verify Token
 function verifyToken(req, res, next) {
   const bearerHeader = req.headers["authorization"];

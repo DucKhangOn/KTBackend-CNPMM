@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     term:{
-       type: DataTypes.INTEGER,
+       type: DataTypes.DOUBLE,
        allowNull:false,
       },
     rateInterest: {
