@@ -77,12 +77,15 @@ router.put("/users/:id", async (req, res) => {
   try {
     let user = await userController.findUserById(id);
     if (user) {
-      await userController.updateUser(user, req.body);
-      res.json({
-        result: "ok",
-        data: user,
-        message: "update a User successfully",
-      });
+      await bcrypt.hash(req.body.password, 10, async (err, hash) => {
+        req.body.password = hash;
+        await userController.updateUser(user, req.body);
+        res.json({
+          result: "ok",
+          data: user,
+          message: "update a User successfully",
+        });
+      }); 
     } else {
       res.json({
         result: "failed",
