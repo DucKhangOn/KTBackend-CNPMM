@@ -3,10 +3,10 @@ var controller = {};
 const { sequelize } = require("../models");
 const models = require("../models");
 
-controller.createBank = async (body) => {
+controller.createCard = async (body) => {
   return await sequelize
     .transaction((t) => {
-      return models.Bank.create({...body});
+      return models.Card.create({ ...body });
     })
     .then((result) => {
       return result;
@@ -16,14 +16,14 @@ controller.createBank = async (body) => {
     });
 };
 
-controller.deleteBankById = async (id) => {
-  return await models.Bank.destroy({
+controller.deleteCardId = async (id) => {
+  return await models.Card.destroy({
     where: { id: id },
   });
 };
 
-controller.updateBank = async (bank, body) => {
-  return await bank
+controller.updateCard = async (card, body) => {
+  return await card
     .update({
       ...body,
     })
@@ -35,10 +35,10 @@ controller.updateBank = async (bank, body) => {
     });
 };
 controller.FindAll = async () => {
-  return await models.Bank.findAll();
+  return await models.Card.findAll();
 };
-controller.FindBankByID = async (id) => {
-  return await models.Bank.findOne({
+controller.FindCardByID = async (id) => {
+  return await models.Card.findOne({
     where: { id: id },
   });
 };

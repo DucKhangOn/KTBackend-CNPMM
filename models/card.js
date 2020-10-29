@@ -22,9 +22,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull:false,
     },
+    BankAccountId:{
+      type:DataTypes.INTEGER,
+      allowNull: false,
+    }
   }, {});
   Card.associate = function (models) {
-    Card.belongsTo(models.BankAccount, { foreignKey: "id" });
+    Card.belongsTo(models.BankAccount, { foreignKey: "BankAccountId" });
   };
   return Card;
 };

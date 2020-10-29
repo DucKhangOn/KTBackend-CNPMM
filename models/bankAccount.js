@@ -19,9 +19,13 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    UserId:{
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {});
   BankAccount.associate = function (models) {
-    BankAccount.belongsTo(models.User, { foreignKey: 'id' });
+    BankAccount.belongsTo(models.User, { foreignKey: 'UserId' });
     BankAccount.hasMany(models.SavingsAccount);
     BankAccount.hasMany(models.Transaction);
     BankAccount.hasMany(models.Card);
