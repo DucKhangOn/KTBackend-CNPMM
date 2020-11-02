@@ -14,9 +14,17 @@ module.exports = (sequelize, DataTypes) => {
       },
       desBank: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       amount: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
+      beforeBalance: {
+        type: DataTypes.DOUBLE,
+        allowNull: false,
+      },
+      afterBalance: {
         type: DataTypes.DOUBLE,
         allowNull: false,
       },
@@ -37,9 +45,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      ServiceId:{
+      ServiceId: {
         type: DataTypes.INTEGER,
-        allowNull:false,
+        allowNull: false,
       },
     },
     {}

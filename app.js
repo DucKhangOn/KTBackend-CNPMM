@@ -80,6 +80,9 @@ app.get("/sync", async (req, res) => {
       await models.BankAccount.sync();
     })
     .then(async () => {
+      await models.PaypalAccount.sync();
+    })
+    .then(async () => {
       await models.SavingsAccount.sync();
     })
     .then(async () => {

@@ -9,8 +9,9 @@ const serviceController = require("../controllers/serviceController");
 const exchangeRateController = require("../controllers/exchangeRateController");
 const rateInterestController = require("../controllers/rateInterestController");
 const transactionController = require("../controllers/transactionController");
-const savingsAccountController= require("../controllers/savingsAccount");
-const cardController= require("../controllers/cardController");
+const savingsAccountController = require("../controllers/savingsAccount");
+const cardController = require("../controllers/cardController");
+const paypalController = require("../controllers/paypalController");
 const bcrypt = require("bcrypt");
 
 //----------------------------UserController
@@ -1042,32 +1043,32 @@ router.post("/savingsAccounts", async (req, res) => {
     let rateInterest = await rateInterestController.FindRateInterestByID(
       req.body.RateInterestId
     );
-      if (rateInterest != null) {
-        //Check bankAccount
-        let bankAccount = await bankAccountController.FindBankAccountByID(
-          req.body.BankAccountId
+    if (rateInterest != null) {
+      //Check bankAccount
+      let bankAccount = await bankAccountController.FindBankAccountByID(
+        req.body.BankAccountId
+      );
+      if (bankAccount != null) {
+        let newsavingsAccount = await savingsAccountController.createSavingsAccount(
+          req.body
         );
-        if (bankAccount != null) {
-          let newsavingsAccount = await savingsAccountController.createSavingsAccount(
-            req.body
-          );
-          newsavingsAccount.errors
-            ? res.json({ result: "failed", savingsAccount: newsavingsAccount })
-            : res.json({ result: "ok", savingsAccount: newsavingsAccount });
-        } else {
-          res.json({
-            result: "failed",
-            data: {},
-            message: `BankAccount invaiable. Please choose another bankAccount`,
-          });
-        }
+        newsavingsAccount.errors
+          ? res.json({ result: "failed", savingsAccount: newsavingsAccount })
+          : res.json({ result: "ok", savingsAccount: newsavingsAccount });
       } else {
         res.json({
           result: "failed",
           data: {},
-          message: `RateInterest invaiable. Please choose another rateInterest`,
+          message: `BankAccount invaiable. Please choose another bankAccount`,
         });
       }
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: `RateInterest invaiable. Please choose another rateInterest`,
+      });
+    }
   } catch (error) {
     res.json({
       result: "failed",
@@ -1173,7 +1174,9 @@ router.get("/savingsAccounts", async (req, res) => {
 router.get("/savingsAccounts/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const savingsAccount = await savingsAccountController.FindSavingsAccountByID(id);
+    const savingsAccount = await savingsAccountController.FindSavingsAccountByID(
+      id
+    );
     savingsAccount
       ? res.json({
           result: "ok",
@@ -1199,24 +1202,22 @@ router.get("/savingsAccounts/:id", async (req, res) => {
 //belongs to bankAccount
 router.post("/cards", async (req, res) => {
   try {
-        //Check bankAccount
-        let bankAccount = await bankAccountController.FindBankAccountByID(
-          req.body.BankAccountId
-        );
-        if (bankAccount != null) {
-          let newcard = await cardController.createCard(
-            req.body
-          );
-          newcard.errors
-            ? res.json({ result: "failed", card: newcard })
-            : res.json({ result: "ok", card: newcard });
-        } else {
-          res.json({
-            result: "failed",
-            data: {},
-            message: `BankAccount invaiable. Please choose another bankAccount`,
-          });
-        }
+    //Check bankAccount
+    let bankAccount = await bankAccountController.FindBankAccountByID(
+      req.body.BankAccountId
+    );
+    if (bankAccount != null) {
+      let newcard = await cardController.createCard(req.body);
+      newcard.errors
+        ? res.json({ result: "failed", card: newcard })
+        : res.json({ result: "ok", card: newcard });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: `BankAccount invaiable. Please choose another bankAccount`,
+      });
+    }
   } catch (error) {
     res.json({
       result: "failed",
@@ -1259,14 +1260,9 @@ router.put("/cards/:id", async (req, res) => {
             "BankAccount invaiable. Please choose another bankAccount ID",
         });
     }
-    let card = await cardController.FindCardByID(
-      id
-    );
+    let card = await cardController.FindCardByID(id);
     if (card) {
-      await cardController.updateCard(
-        card,
-        req.body
-      );
+      await cardController.updateCard(card, req.body);
       res.json({
         result: "ok",
         data: card,
@@ -1310,9 +1306,7 @@ router.get("/cards", async (req, res) => {
 router.get("/cards/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const card = await cardController.FindCardByID(
-      id
-    );
+    const card = await cardController.FindCardByID(id);
     card
       ? res.json({
           result: "ok",
@@ -1324,6 +1318,21 @@ router.get("/cards/:id", async (req, res) => {
           card: {},
           message: "card unvaiable",
         });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      card: [],
+      length: 0,
+      message: `query a Card failed. Error: ${error}`,
+    });
+  }
+});
+
+//---------------------------PaypalController
+//belongs to PaypalAccount
+router.get("/paypal", async (req, res) => {
+  try {
+    await paypalController.TrasactionToDesBank();
   } catch (error) {
     res.json({
       result: "failed",
