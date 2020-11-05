@@ -13,7 +13,24 @@ const savingsAccountController = require("../controllers/savingsAccount");
 const cardController = require("../controllers/cardController");
 const paypalController = require("../controllers/paypalController");
 const bcrypt = require("bcrypt");
+//----------------------------------------------
+const paypal = require("paypal-rest-sdk");
+const { token } = require("morgan");
+const KTBANK_dBank = {
+  client_id:
+    "AcF0kj5czGiFt428I_VxKAk7BwGD9hNQNumG4IfljYn7wqFBYMIg9czAqZwl3DcBLi1EH6SdCmysQjEi",
+  client_secret:
+    "EHCelxB0xISwq_3NrV6-Mr1xhcUSIF0WpCgBXXXyk69RLULkQgpsUArhdpXTs7E2Q9ZugVHPXK7Wyoht",
+};
+//----------------------------------------------
+const KTBANK_stripe = {
+  public_key:
+    "pk_test_51HkBR4FxWvodV66aUf4fbEIxVYHx33ehugmaiSoPoPGf7b2nqa8YBJzbf4g2wYq6C9y8RRKGA0Yt4MnNBxqSdl4R00V0L4uHwW",
+  secret_key:
+    "sk_test_51HkBR4FxWvodV66a1jhVQe2kse7uIYcqaqvptULavgWLTA6WSuwyT86SqPCxmp7hZh2O4zmNJmMecxJTJel13w9200c21nNwZ8",
+};
 
+const stripe = require("stripe")(KTBANK_stripe.secret_key);
 //----------------------------UserController
 //----Methor Post
 //Check Login (hash password)
@@ -1328,19 +1345,265 @@ router.get("/cards/:id", async (req, res) => {
   }
 });
 
-//---------------------------PaypalController
+//---------------------------PaypalAcccountController
+router.post("/paypalAccounts", async (req, res) => {
+  try {
+    //Check bankAccount
+    let bankAccount = await bankAccountController.FindBankAccountByID(
+      req.body.BankAccountId
+    );
+    if (bankAccount != null) {
+      let newpaypalAccount = await paypalAccountController.createPaypalAccount(
+        req.body
+      );
+      newpaypalAccount.errors
+        ? res.json({ result: "failed", paypalAccount: newpaypalAccount })
+        : res.json({ result: "ok", paypalAccount: newpaypalAccount });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: `BankAccount invaiable. Please choose another bankAccount`,
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot create a PaypalAccount. Error: ${error}`,
+    });
+  }
+});
+
+router.delete("/paypalAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await paypalAccountController.deletePaypalAccountById(id);
+    res.json({
+      result: "ok",
+      message: "Delete a PaypalAccount successfully",
+      id: id,
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Delete a PaypalAccount failed. Error: ${error}`,
+    });
+  }
+});
+
+router.put("/paypalAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    //Check bankAccount
+    if (req.body.BankAccountId != null) {
+      let bankAccount = await bankAccountController.FindBankAccountByID(
+        req.body.BankAccountId
+      );
+      if (bankAccount == null)
+        res.json({
+          result: "failed",
+          message:
+            "BankAccount invaiable. Please choose another bankAccount ID",
+        });
+    }
+    let paypalAccount = await paypalAccountController.FindPaypalAccountByID(id);
+    if (paypalAccount) {
+      await paypalAccountController.updatePaypalAccount(
+        paypalAccount,
+        req.body
+      );
+      res.json({
+        result: "ok",
+        data: paypalAccount,
+        message: "Update a PaypalAccount successfully",
+      });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: "Cannot find PaypalAccount to update",
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot update a PaypalAccount. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/paypalAccounts", async (req, res) => {
+  try {
+    const paypalAccounts = await paypalAccountController.FindAll();
+    res.json({
+      result: "ok",
+      PaypalAccount: paypalAccounts,
+      length: paypalAccounts.length,
+      message: "query list of PaypalAccounts successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      paypalAccounts: [],
+      length: 0,
+      message: `query list of PaypalAccounts failed. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/paypalAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const paypalAccount = await paypalAccountController.FindPaypalAccountByID(
+      id
+    );
+    paypalAccount
+      ? res.json({
+          result: "ok",
+          paypalAccount: paypalAccount,
+          message: "query a paypalAccount successfully",
+        })
+      : res.json({
+          result: "failed",
+          paypalAccount: {},
+          message: "paypalAccount unvaiable",
+        });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      paypalAccount: [],
+      length: 0,
+      message: `query a PaypalAccount failed. Error: ${error}`,
+    });
+  }
+});
+
+//---------------------------Paypal transaction
+//Cancel request
+router.get("/cancel", (req, res) => {
+  res.json({ result: "cancel" });
+});
+//Success request có 2 các thực hiện
+//C1: truyen transaction /success/:id để lấy parameter để lấy thông tin
+//C2: sử dụng section để lưu trữ thông tin
+router.get("/success", async (req, res) => {
+  try {
+    var paymentId = req.query.paymentId;
+    var payerId = { payer_id: req.query.PayerID };
+
+    await paypal.payment.execute(paymentId, payerId, function (error, payment) {
+      if (error) {
+        console.error(JSON.stringify(error));
+      } else {
+        if (payment.state == "approved") {
+          console.log("payment completed successfully");
+          res.json({ result: "oke" }); //Truyền thêm data
+        } else {
+          console.log("payment not successful");
+          res.json({ result: "cancel" });
+        }
+      }
+      res.json({ result: "oke" });
+    });
+  } catch (error) {
+    res.json({ result: "cancel" });
+  }
+});
 //belongs to PaypalAccount
+//**GET dung cho test backend
+//**fix POST de ap dung cho front end
 router.get("/paypal", async (req, res) => {
   try {
-    await paypalController.TrasactionToDesBank();
+    await paypal.configure({
+      mode: "sandbox", //sandbox or live
+      // client_id: [dBank.client_id],
+      // client_secret: [dBank.client_secret],
+      client_id: KTBANK_dBank.client_id,
+      client_secret: KTBANK_dBank.client_secret,
+    });
+
+    let create_payment_json = await {
+      intent: "sale",
+      payer: {
+        payment_method: "paypal",
+      },
+      redirect_urls: {
+        return_url: "http://localhost:5000/api/success", // viết theo success request
+        cancel_url: "http://localhost:5000/api/cancel",
+      },
+      transactions: [
+        {
+          item_list: {
+            items: [
+              {
+                name: "item",
+                sku: "item",
+                price: 10, //body.amount,
+                currency: "USD",
+                quantity: 1,
+              },
+            ],
+          },
+          amount: {
+            currency: "USD",
+            total: 10, //body.amount,
+          },
+          description: "This is the payment description.",
+        },
+      ],
+    };
+    paypal.payment.create(create_payment_json, function (error, payment) {
+      if (error) {
+        throw error;
+      } else {
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel === "approval_url") {
+            res.redirect(payment.links[i].href);
+          }
+        }
+      }
+    });
   } catch (error) {
     res.json({
       result: "failed",
       card: [],
       length: 0,
-      message: `query a Card failed. Error: ${error}`,
+      message: `query a paymentFail failed. Error: ${error}`,
     });
   }
+});
+
+//------------------------Stripe transaction
+router.get("/stripe", function (req, res) {
+  res.render("home", {
+    $key: KTBANK_stripe.public_key,
+  });
+});
+
+router.post("/create-checkout-session", async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: [
+      {
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: "T-shirt",
+          },
+          unit_amount: 2000,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: "payment",
+    success_url: "https://example.com/success",
+    cancel_url: "https://example.com/cancel",
+  });
+
+  res.json({ id: session.id });
 });
 
 //Verify Token

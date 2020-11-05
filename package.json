@@ -18,7 +18,8 @@
     "paypal-rest-sdk": "^1.8.1",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
-    "sequelize": "^6.3.5"
+    "sequelize": "^6.3.5",
+    "stripe": "^8.120.0"
   },
   "devDependencies": {
     "morgan": "^1.10.0",
