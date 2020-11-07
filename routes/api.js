@@ -1486,17 +1486,23 @@ router.get("/paypalAccounts/:id", async (req, res) => {
 router.get("/cancel", (req, res) => {
   res.json({ result: "cancel" });
 });
+//---------------------------Paypal transaction
+//Cancel request
+router.get("/cancel", (req, res) => {
+  res.json({ result: "cancel" });
+});
 //Success request có 2 các thực hiện
 //C1: truyen transaction /success/:id để lấy parameter để lấy thông tin
 //C2: sử dụng section để lưu trữ thông tin
-router.get("/success", async (req, res) => {
+router.post("/success", async (req, res) => {
   try {
-    var paymentId = req.query.paymentId;
-    var payerId = { payer_id: req.query.PayerID };
+    var paymentId = req.body.paymentId;
+    var payerId = { payer_id: req.body.PayerID };
 
     await paypal.payment.execute(paymentId, payerId, function (error, payment) {
       if (error) {
         console.error(JSON.stringify(error));
+        res.json({ result: "cancel" });
       } else {
         if (payment.state == "approved") {
           console.log("payment completed successfully");
@@ -1506,7 +1512,7 @@ router.get("/success", async (req, res) => {
           res.json({ result: "cancel" });
         }
       }
-      res.json({ result: "oke" });
+    
     });
   } catch (error) {
     res.json({ result: "cancel" });
@@ -1531,8 +1537,8 @@ router.get("/paypal", async (req, res) => {
         payment_method: "paypal",
       },
       redirect_urls: {
-        return_url: "http://localhost:5000/api/success", // viết theo success request
-        cancel_url: "http://localhost:5000/api/cancel",
+        return_url: "http://localhost:4200/page/success", // viết theo success request
+        cancel_url: "http://localhost:4200/page/error",
       },
       transactions: [
         {
@@ -1541,7 +1547,7 @@ router.get("/paypal", async (req, res) => {
               {
                 name: "item",
                 sku: "item",
-                price: 10, //body.amount,
+                price: 19, //body.amount,
                 currency: "USD",
                 quantity: 1,
               },
@@ -1549,7 +1555,7 @@ router.get("/paypal", async (req, res) => {
           },
           amount: {
             currency: "USD",
-            total: 10, //body.amount,
+            total: 19, //body.amount,
           },
           description: "This is the payment description.",
         },
@@ -1561,7 +1567,7 @@ router.get("/paypal", async (req, res) => {
       } else {
         for (let i = 0; i < payment.links.length; i++) {
           if (payment.links[i].rel === "approval_url") {
-            res.redirect(payment.links[i].href);
+            res.json({link: payment.links[i].href});
           }
         }
       }
@@ -1578,10 +1584,11 @@ router.get("/paypal", async (req, res) => {
 
 //------------------------Stripe transaction
 router.get("/stripe", function (req, res) {
-  res.render("home", {
-    $key: KTBANK_stripe.public_key,
+  res.json({
+    key: KTBANK_stripe.public_key,
   });
 });
+
 
 router.post("/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({

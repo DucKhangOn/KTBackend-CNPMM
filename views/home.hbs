@@ -8,13 +8,13 @@
     <button id="checkout-button">Checkout</button>
     <script type="text/javascript">
         // Create an instance of the Stripe object with your publishable API key
-        var stripe = Stripe('pk_test_51HkBR4FxWvodV66aUf4fbEIxVYHx33ehugmaiSoPoPGf7b2nqa8YBJzbf4g2wYq6C9y8RRKGA0Yt4MnNBxqSdl4R00V0L4uHwW');
+        var stripe = Stripe();
         var checkoutButton = document.getElementById('checkout-button');
 
         checkoutButton.addEventListener('click', function () {
             // Create a new Checkout Session using the server-side endpoint you
             // created in step 3.
-            fetch('/api/create-checkout-session', {
+            fetch('http://localhost:5000/api/create-checkout-session', {
                 method: 'POST',
             })
                 .then(function (response) {
