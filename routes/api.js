@@ -191,6 +191,7 @@ router.put("/users/:id", async (req, res) => {
 router.delete("/users/:id", async (req, res) => {
   const { id } = req.params;
   try {
+    await bankAccountController.deleteBankAccountByUserId(id);
     await userController.deteleUserById(id);
     res.json({
       result: "ok",

@@ -22,6 +22,12 @@ controller.deleteBankAccountById = async (id) => {
   });
 };
 
+controller.deleteBankAccountByUserId = async (id) => {
+  return await models.BankAccount.destroy({
+    where: { UserId: id },
+  });
+};
+
 controller.updateBankAccount = async (bankAccount, body) => {
   return await bankAccount
     .update({
