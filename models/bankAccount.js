@@ -26,9 +26,6 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   BankAccount.associate = function (models) {
     BankAccount.belongsTo(models.User, { foreignKey: 'UserId' });
-    BankAccount.hasMany(models.SavingsAccount);
-    BankAccount.hasMany(models.Transaction);
-    BankAccount.hasMany(models.Card);
   };
   return BankAccount;
 };

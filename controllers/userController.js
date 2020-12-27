@@ -36,11 +36,30 @@ controller.findUserByEmail = async (email) => {
   return await models.User.findOne({ where: { email: email } });
 };
 
+//Change Password
+controller.updatePassword = async (user, newPassword) => {
+  return await user
+    .update({
+      password: newPassword
+    })
+    .then((result) => {
+      return result;
+    })
+    .catch((err) => {
+      return err;
+    });
+};
+
 //Update
 controller.updateUser = async (user, body) => {
   return await user
     .update({
-      ...body,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      phone: body.phone,
+      gender: body.gender,
+      address: body.address,
+      isAdmin: body.isAdmin
     })
     .then((result) => {
       return result;
