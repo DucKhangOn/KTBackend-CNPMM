@@ -16,12 +16,14 @@ controller.createUser = async (body) => {
       return err;
     });
 };
+
 //Read
 controller.FindAllUser = async () => {
   return await models.User.findAll({
     attributes: ["id", "email", "password"],
   });
 };
+
 controller.FindAll = async () => {
   return await models.User.findAll();
 };

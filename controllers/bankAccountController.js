@@ -3,6 +3,7 @@ var controller = {};
 const { sequelize } = require("../models");
 const models = require("../models");
 
+//Create
 controller.createBankAccount = async (body) => {
   return await sequelize
     .transaction((t) => {
@@ -16,6 +17,7 @@ controller.createBankAccount = async (body) => {
     });
 };
 
+//Delete
 controller.deleteBankAccountById = async (id) => {
   return await models.BankAccount.destroy({
     where: { id: id },
@@ -28,6 +30,7 @@ controller.deleteBankAccountByUserId = async (id) => {
   });
 };
 
+//Update
 controller.updateBankAccount = async (bankAccount, body) => {
   return await bankAccount
     .update({
@@ -41,6 +44,7 @@ controller.updateBankAccount = async (bankAccount, body) => {
     });
 };
 
+//Read
 controller.FindAll = async () => {
   return await models.BankAccount.findAll();
 };

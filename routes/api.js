@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const nodemailer = require("nodemailer");
 
 //Controller
 const userController = require("../controllers/userController");
@@ -32,6 +33,9 @@ const stripe = require("stripe")(KTBANK_stripe.secret_key);
 router.post("/users/login", async (req, res) => {
   const user = await userController.findUserByEmail(req.body.email);
   if (user == null) {
+    res.json({
+      message: "Login failed"
+    });
     console.log("Not found!");
   } else {
     var isMatch = await bcrypt.compare(req.body.password, user.password);
@@ -474,6 +478,89 @@ router.post("/success-stripe", async (req, res) => {
     res.json({ result: "oke" }); //Truyền thêm data
   } catch (error) {
     res.json({ result: "cancel" });
+  }
+});
+
+//Forgot password
+router.post("/testMail", async function (req, res) {
+  const OTP = req.body.otp;
+  const email = req.body.email;
+  console.log(req.body);
+  var transporter = await nodemailer.createTransport({
+    // config mail server
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "KTBankDemoTest@gmail.com",
+      pass: "123456@Aa",
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+  var content = "";
+  content += `
+        <div style="padding: 10px; background-color: #003375">
+            <div style="padding: 10px; background-color: white;">
+                <h4 style="color: #0085ff">Gửi mail với nodemailer và express</h4>
+                <span style="color: black">Đây là mã OPT của bạn</span>
+                <span>${OTP}</span>
+            </div>
+        </div>
+    `;
+  var mainOptions = {
+    // thiết lập đối tượng, nội dung gửi mail
+    from: "KTBanking nodemailer",
+    to: email, //req.body.mail,
+    subject: "Test Nodemailer",
+    text: "Your text is here",
+    html: content,
+  };
+  transporter.sendMail(mainOptions, function (err, info) {
+    if (err) {
+      console.log(err);
+      res.json({ mess: "Lỗi gửi mail: " + err });
+      //res.redirect("/");
+    } else {
+      console.log("Message sent: " + info.response);
+      res.json({
+        mess: "Một email đã được gửi đến tài khoản của bạn",
+        otp: OTP,
+      }); //Gửi thông báo đến người dùng
+    }
+  });
+});
+
+router.post("/testChangePassword", async function (req, res) {
+  const email = req.body.email;
+  const newPassword = req.body.newPassword;
+  console.log(req.body);
+  try {
+    let user = await userController.findUserByEmail(email);
+    console.log(user);
+    if (user) {
+      await bcrypt.hash(req.body.newPassword, 10, async (err, hash) => {
+        req.body.newPassword = hash;
+        await userController.updatePassword(user, hash);
+        res.json({
+          result: "ok",
+          message: "Change User's password successfully",
+        });
+      });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: "Cannot find User to update",
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot change User's password. Error: ${error}`,
+    });
   }
 });
 
