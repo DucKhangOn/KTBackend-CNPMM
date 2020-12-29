@@ -35,7 +35,16 @@ app.get("/sync", async (req, res) => {
   let models = require("./models");
   await models.User.sync()
     .then(async () => {
+      await models.RateInterest.sync();
+    })
+    .then(async () => {
       await models.BankAccount.sync();
+    })
+    .then(async () => {
+      await models.BankSavingBook.sync();
+    })
+    .then(async () => {
+      await models.SavingsAccount.sync();
     })
     .then(() => {
       res.send("database sync completed!");

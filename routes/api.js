@@ -7,6 +7,9 @@ const nodemailer = require("nodemailer");
 //Controller
 const userController = require("../controllers/userController");
 const bankAccountController = require("../controllers/bankAccountController");
+const bankSavingBookController = require("../controllers/bankSavingBookController");
+const rateInterestController = require("../controllers/rateInterestController");
+const savingsAccountController = require("../controllers/savingsAccountController");
 
 //----------------------------------------------
 const paypal = require("paypal-rest-sdk");
@@ -34,7 +37,7 @@ router.post("/users/login", async (req, res) => {
   const user = await userController.findUserByEmail(req.body.email);
   if (user == null) {
     res.json({
-      message: "Login failed"
+      message: "Login failed",
     });
     console.log("Not found!");
   } else {
@@ -68,7 +71,7 @@ router.post("/users/register", async (req, res) => {
       } else {
         let userCheck = await userController.findUserByEmail(req.body.email);
         //const card = randomNumberBankCard();
-        const card = randomEnum(req.body.nameBank)
+        const card = randomEnum(req.body.nameBank);
         console.log(card);
         const tempBody = {
           bankCardNumber: card,
@@ -82,15 +85,15 @@ router.post("/users/register", async (req, res) => {
         console.log(newbankAccount);
         newbankAccount.errors
           ? res.json({
-            result: "failed",
-            newbankAccount: newbankAccount,
-            newUser: newUser,
-          })
+              result: "failed",
+              newbankAccount: newbankAccount,
+              newUser: newUser,
+            })
           : res.json({
-            result: "ok",
-            newbankAccount: newbankAccount,
-            newUser: newUser,
-          });
+              result: "ok",
+              newbankAccount: newbankAccount,
+              newUser: newUser,
+            });
       }
     });
   } catch (error) {
@@ -113,8 +116,14 @@ const BankAccountEnum = {
 
 function randomEnum(value) {
   return (
-    BankAccountEnum[value] + "-" + makenum(4) + "-" + makeid(3) + "-" + makenum(3)
-  )
+    BankAccountEnum[value] +
+    "-" +
+    makenum(4) +
+    "-" +
+    makeid(3) +
+    "-" +
+    makenum(3)
+  );
 }
 
 function makenum(length) {
@@ -259,15 +268,15 @@ router.get("/users/:id", async (req, res) => {
     const user = await userController.findUserById(id);
     user
       ? res.json({
-        result: "ok",
-        user: user,
-        message: "query a User successfully",
-      })
+          result: "ok",
+          user: user,
+          message: "query a User successfully",
+        })
       : res.json({
-        result: "failed",
-        user: {},
-        message: "User unvaiable",
-      });
+          result: "failed",
+          user: {},
+          message: "User unvaiable",
+        });
   } catch (error) {
     res.json({
       result: "failed",
@@ -286,15 +295,15 @@ router.get("/bankAccounts/info/:UserId", async (req, res) => {
     );
     bankAccount
       ? res.json({
-        result: "ok",
-        bankAccount: bankAccount,
-        message: "query a bankAccount successfully",
-      })
+          result: "ok",
+          bankAccount: bankAccount,
+          message: "query a bankAccount successfully",
+        })
       : res.json({
-        result: "failed",
-        bankAccount: {},
-        message: "bankAccount unvaiable",
-      });
+          result: "failed",
+          bankAccount: {},
+          message: "bankAccount unvaiable",
+        });
   } catch (error) {
     res.json({
       result: "failed",
@@ -577,5 +586,689 @@ function verifyToken(req, res, next) {
     res.sendStatus(403);
   }
 }
+
+//---------------------------SavingsAccountController
+async function createSavingsAccount(req, res) {
+  //Check rateInterest
+  let rateInterest = await rateInterestController.FindRateInterestByID(
+    req.body.RateInterestId
+  );
+  if (rateInterest != null) {
+    //Check bankAccount
+    let bankAccount = await bankAccountController.FindBankAccountByID(
+      req.body.BankAccountId
+    );
+    if (bankAccount != null) {
+      let newsavingsAccount = await savingsAccountController.createSavingsAccount(
+        req.body
+      );
+      newsavingsAccount.errors
+        ? res.json({ result: "failed", savingsAccount: newsavingsAccount })
+        : res.json({ result: "ok", savingsAccount: newsavingsAccount });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: `BankAccount invaiable. Please choose another bankAccount`,
+      });
+    }
+  } else {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `RateInterest invaiable. Please choose another rateInterest`,
+    });
+  }
+}
+//----------------------TestCode
+router.post("/test", async (req, res) => {
+  console.log(req.body);
+  try {
+    result = await testFinancialCapacity(req, res);
+    if (result == false) {
+      res.json({
+        result:
+          "Số dư trong tài khoản quỷ khách không đủ để thực hiện giao dịch",
+      });
+    } else {
+      res.json({
+        result: result,
+      });
+    }
+  } catch (err) {
+    res.json({
+      result: false,
+      data: err,
+    });
+  }
+});
+//--------------------add Saving Card
+router.post("/testSavingCard", async (req, res) => {
+  try {
+    //Lấy sổ tiết kiệm của khách hàng
+    const rootBankSavingBook = await bankSavingBookController.FindBankSavingBookByID(
+      req.body.bankSavingBookID
+    );
+    console.log(rootBankSavingBook.isActivity + "-----------------");
+    if (rootBankSavingBook.isActivity == "false") {
+      res.json({
+        result: true,
+        data: "Đã tất toán",
+      });
+    } else {
+      const pkey = rootBankSavingBook.savingAccountNumber; //key root
+      const fkey = rootBankSavingBook.savingAccountNumber; //key child
+      withdrawalDate = req.body.withdrawalDate;
+      const length = { length: rootBankSavingBook.length };
+
+      //console.log(length.length+"asdasd")
+
+      const lastAccount = await addLinkedListForSavingBook(
+        withdrawalDate,
+        fkey,
+        length
+      );
+      await bankSavingBookController.updateBankSavingBook(
+        rootBankSavingBook,
+        length
+      );
+      const rootAccount = await savingsAccountController.FindSavingsAccountByCarNumber(
+        pkey
+      );
+
+      const info = {
+        prevBalance: rootAccount.prevBalance,
+        afterBalance: lastAccount.balance,
+        withdrawalDate: withdrawalDate,
+      };
+      await bankSavingBookController.updateActivity(rootBankSavingBook, info);
+      const bankAccount = await bankAccountController.FindBankAccountByCardNumber(
+        rootBankSavingBook.bankCardNumber
+      );
+      await bankAccountController.updateBankAccount(bankAccount, {
+        balance: bankAccount.balance + lastAccount.balance,
+      });
+
+      console.log("-------data-final---");
+      console.log(info);
+
+      res.json({
+        result: true,
+        inform: "Dịch vụ thành công",
+        length: length.length,
+        data: data,
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: false,
+      data: error,
+    });
+  }
+});
+
+router.post("/testSavingCardReview", async (req, res) => {
+  console.log(req.body);
+  try {
+    //Lấy sổ tiết kiệm của khách hàng
+    const rootBankSavingBook = await bankSavingBookController.FindBankSavingBookByID(
+      req.body.bankSavingBookID
+    );
+    const pkey = rootBankSavingBook.savingAccountNumber; //key root
+    const fkey = rootBankSavingBook.savingAccountNumber; //key child
+    withdrawalDate = req.body.withdrawalDate;
+    const length = { length: rootBankSavingBook.length };
+    const data = {};
+    const rootAccount = await savingsAccountController.FindSavingsAccountByCarNumber(
+      pkey
+    );
+    data[0] = rootAccount.dataValues;
+
+    await addLinkedListForSavingBookReview(withdrawalDate, fkey, length, data);
+
+    res.json({
+      result: true,
+      inform: "Dịch vụ thành công",
+      length: length.length,
+      data: data,
+    });
+  } catch (error) {
+    res.json({
+      result: false,
+      data: error,
+    });
+  }
+});
+
+//Tính tiền lãi cho khách hàng bằng link list
+async function addLinkedListForSavingBookReview(
+  withdrawalDate,
+  key,
+  length,
+  datajs
+) {
+  //Lấy tài khoản gốc của khách hàng
+  var rootSavingAccount = {};
+  rootSavingAccount = datajs[length.length - 1];
+  //Kiểm tra các biến ** withdrawalDate,isFinalSettlement,childOf
+  //Nếu có biến withdrawalDate thì tiến hành tính tiền và chuyển isFinalSettlement thành true
+  //Kích hoạt childOf để đẩy
+  //Tăng length mỗi lần tạo thêm tk mới
+
+  if (
+    format.asString("MM-dd-yyyy", rootSavingAccount.depositDate) ==
+    withdrawalDate
+    // ||
+    // (rootSavingAccount.childOf != null)
+  )
+    return datajs;
+  else {
+    const start = format.asString("MM-dd-yyyy", rootSavingAccount.depositDate);
+
+    let end;
+    try {
+      end = format.asString("MM-dd-yyyy", withdrawalDate);
+    } catch {
+      end = format.asString(withdrawalDate);
+    }
+
+    const duration = datediff(parseDate(start), parseDate(end));
+    var temp = await rateInterestController.getRateByDay(
+      format.asString("MM-dd-yyyy", rootSavingAccount.depositDate),
+      rootSavingAccount.term
+    );
+    if (duration < rootSavingAccount.term * 30) {
+      //Lãi suất không kì hạn
+      rootSavingAccount.balance =
+        rootSavingAccount.balance +
+        (rootSavingAccount.balance * duration * 0.001) / 365; //0.1%
+      rootSavingAccount.withdrawalDate = new Date(Date.parse(end));
+    } else {
+      rootSavingAccount.balance =
+        rootSavingAccount.balance * (1 + temp.rateInterest / 100);
+      rootSavingAccount.withdrawalDate = new Date(
+        Date.parse(dateAdd(start, rootSavingAccount.term * 30))
+      );
+    }
+    //await rateInterestController.getRateByDay(rootSavingAccount.withdrawalDate, rootSavingAccount.term)
+
+    numberhind = length.length;
+    rootSavingAccount.childOf = numberhind;
+    datajs[length.length - 1] = rootSavingAccount;
+    datajs[length.length - 1].rateInterest = temp.rateInterest;
+    key = numberhind;
+
+    datajs[length.length] = {
+      number: numberhind,
+      hasTerm: rootSavingAccount.hasTerm,
+      term: rootSavingAccount.term,
+      prevBalance: rootSavingAccount.balance,
+      balance: rootSavingAccount.balance,
+      depositDate: rootSavingAccount.withdrawalDate,
+      withdrawalDate: null,
+      isFinalSettlement: rootSavingAccount.isFinalSettlement,
+      itemChosen: rootSavingAccount.itemChosen,
+      childOf: null,
+      BankAccountId: rootSavingAccount.BankAccountId,
+      rateInterest: 0,
+    };
+
+    length.length = length.length + 1;
+    return await addLinkedListForSavingBookReview(
+      withdrawalDate,
+      key,
+      length,
+      datajs
+    );
+  }
+}
+//----------------------------------
+router.post("/getChildOfSavingCard", async (req, res) => {
+  const fkey = await findCardChildOf(req.body.BankCard);
+  // const data={0: {fkey:fkey}};
+  //data[1]={data: "testing"}
+  res.json({
+    //res:data
+    data: fkey,
+  });
+});
+//Get ChildCard
+async function findCardChildOf(fkey) {
+  const rSavingAccount = await savingsAccountController.FindSavingsAccountByCarNumber(
+    fkey
+  );
+  if (rSavingAccount.childOf == null) return fkey;
+  else return findCardChildOf(rSavingAccount.childOf);
+}
+
+router.post("/getAllInfo", async (req, res) => {
+  var tlen = 0;
+  var data = { rootCardNumber: req.body.BankCard };
+  const datajs = await findAllInfo(req.body.BankCard, data, tlen);
+  res.json(datajs);
+});
+//Get All Info ChildCard
+async function findAllInfo(fkey, datajs, length) {
+  const rSavingAccount = await savingsAccountController.FindSavingsAccountByCarNumber(
+    fkey
+  );
+  if (rSavingAccount.childOf == null) {
+    datajs[length] = rSavingAccount;
+    return datajs;
+  } else {
+    datajs[length] = rSavingAccount;
+    length++;
+    return findAllInfo(rSavingAccount.childOf, datajs, length);
+  }
+}
+
+//Tính tiền lãi cho khách hàng bằng link list
+async function addLinkedListForSavingBook(withdrawalDate, key, length) {
+  //Lấy tài khoản gốc của khách hàng
+  const rootSavingAccount = await savingsAccountController.FindSavingsAccountByCarNumber(
+    key
+  );
+  //Kiểm tra các biến ** withdrawalDate,isFinalSettlement,childOf
+  //Nếu có biến withdrawalDate thì tiến hành tính tiền và chuyển isFinalSettlement thành true
+  //Kích hoạt childOf để đẩy
+  //Tăng length mỗi lần tạo thêm tk mới
+  //console.log(format.asString("MM-dd-yyyy", rootSavingAccount.depositDate) == withdrawalDate)
+  if (
+    format.asString("MM-dd-yyyy", rootSavingAccount.depositDate) ==
+      withdrawalDate ||
+    rootSavingAccount.childOf != null
+  )
+    return rootSavingAccount;
+  else {
+    const start = format.asString("MM-dd-yyyy", rootSavingAccount.depositDate);
+    let end;
+    try {
+      end = format.asString("MM-dd-yyyy", withdrawalDate);
+    } catch {
+      end = format.asString(withdrawalDate);
+    }
+    const duration = datediff(parseDate(start), parseDate(end));
+    var temp = await rateInterestController.getRateByDay(
+      format.asString("MM-dd-yyyy", rootSavingAccount.depositDate),
+      rootSavingAccount.term
+    );
+    if (duration < rootSavingAccount.term * 30) {
+      //Lãi suất không kì hạn
+      rootSavingAccount.balance =
+        rootSavingAccount.balance +
+        (rootSavingAccount.balance * duration * 0.001) / 365; //0.1%
+      rootSavingAccount.withdrawalDate = Date.parse(end + " GMT");
+    } else {
+      rootSavingAccount.balance =
+        rootSavingAccount.balance * (1 + temp.rateInterest / 100);
+      rootSavingAccount.withdrawalDate = Date.parse(
+        dateAdd(start, rootSavingAccount.term * 30) + " GMT"
+      );
+    }
+    numberhind = randomNumberCard();
+    rootSavingAccount.childOf = numberhind;
+    data = {
+      balance: rootSavingAccount.balance,
+      withdrawalDate: rootSavingAccount.withdrawalDate,
+      childOf: rootSavingAccount.childOf,
+      rateInterest: temp.rateInterest,
+    };
+    await savingsAccountController.updateSavingsAccount(
+      rootSavingAccount,
+      data
+    );
+    key = numberhind;
+    const newSavingsAccount = {
+      number: numberhind,
+      hasTerm: rootSavingAccount.hasTerm,
+      term: rootSavingAccount.term,
+      prevBalance: rootSavingAccount.balance,
+      balance: rootSavingAccount.balance,
+      depositDate: rootSavingAccount.withdrawalDate,
+      withdrawalDate: null,
+      isFinalSettlement: true,
+      itemChosen: rootSavingAccount.itemChosen,
+      childOf: null,
+      BankAccountId: rootSavingAccount.BankAccountId,
+      rateInterest: 0,
+    };
+    await savingsAccountController.createSavingsAccount(newSavingsAccount);
+    length.length = length.length + 1;
+    return await addLinkedListForSavingBook(withdrawalDate, key, length);
+  }
+}
+function parseDate(str) {
+  var mdy = str.split("-" || "/");
+  return new Date(mdy[2], mdy[0] - 1, mdy[1]);
+}
+
+function datediff(first, second) {
+  // Take the difference between the dates and divide by milliseconds per day.
+  // Round to nearest whole number to deal with DST.
+  return Math.round((second - first) / (1000 * 60 * 60 * 24));
+}
+function dateAdd(first, duration) {
+  // Take the difference between the dates and divide by milliseconds per day.
+  // Round to nearest whole number to deal with DST.
+  return new Date(new Date(first).getTime() + duration * 24 * 60 * 60 * 1000);
+}
+//Tạo sổ tiết kiệm cho khách hàng
+//Kiểm tra xem tài khoản khách hàng có đủ để tạo số tiết kiệm hay không
+async function testFinancialCapacity(req, res) {
+  //Với banlance là số tiền khách hàng muốn gửi để tạo sổ tiết kiệm
+  //bankCardNumber được lưu trong section, cookie hoặc localstorage
+  try {
+    const balance = req.body.balance;
+    const bankCardNumber = req.body.bankCardNumber;
+    const bankAccount = await bankAccountController.FindBankAccountByCardNumber(
+      bankCardNumber
+    );
+    if (balance < 0 || bankAccount.balance - balance < 0) return false;
+    bankAccount.balance -= balance;
+    //Chay khong ra thi log data bankAccount
+    req.body.BankAccountId = bankAccount.dataValues.id;
+    await bankAccountController.updateBankAccount(bankAccount, {
+      balance: bankAccount.balance,
+    });
+
+    //**Cần lưu vào transaction
+    let result = createBankSavingBookForCustomner(req, res);
+    //console.log(req.body.savingAccountNumber);
+    return result;
+  } catch (err) {
+    return err;
+  }
+}
+function randomNumberBankCard() {
+  return (
+    "17110" +
+    makeid(5) +
+    Math.floor(Math.random() * (99999999999 - 10000000000) + 10000000000)
+  );
+}
+function randomEnum(value) {
+  return (
+    BankAccountEnum[value] +
+    "-" +
+    makenum(4) +
+    "-" +
+    makeid(3) +
+    "-" +
+    makenum(3)
+  );
+}
+function makenum(length) {
+  var result = "";
+  var characters = "0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+//Hàm tạo mã số thẻ ngẫu nhiên
+function randomNumberCard() {
+  return (
+    makeid(5) +
+    Math.floor(Math.random() * (9999999999999 - 1000000000000) + 1000000000000)
+  );
+}
+//Hàm tạo số ngâu nhiên
+function makeid(length) {
+  var result = "";
+  var characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
+//BankSavingBook
+//Tạo một sổ tiết kiệm cho khách hàng
+function createBankSavingBookForCustomner(req, res) {
+  req.body.savingAccountNumber = randomNumberCard();
+  //create first SavingAccount
+  const bankCardNumber = req.body.bankCardNumber;
+  savingAccountNumber = req.body.savingAccountNumber;
+  const bankSavingBook = {
+    bankCardNumber: bankCardNumber,
+    savingAccountNumber: savingAccountNumber,
+    term: req.body.term,
+    length: 1,
+    isActivity: true,
+  };
+  try {
+    bankSavingBookController.createBankSavingBook(bankSavingBook);
+  } catch {
+    return false;
+  }
+  const savingAccount = {
+    number: savingAccountNumber,
+    hasTerm: req.body.hasTerm,
+    term: req.body.term, //month
+    prevBalance: req.body.balance,
+    balance: req.body.balance,
+    depositDate: req.body.depositDate,
+    isFinalSettlement: false,
+    childOf: null,
+    rateInterest: req.body.rateInterest,
+    itemChosen: req.body.itemChosen,
+    BankAccountId: req.body.BankAccountId,
+  };
+  try {
+    savingsAccountController.createSavingsAccount(savingAccount);
+  } catch {
+    return false;
+  }
+  //console.log(savingAccount);
+  return true;
+}
+
+//belongs to rateInterest, bankAccount
+router.post("/savingsAccounts", (req, res) => {
+  try {
+    createSavingsAccount(req, res);
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot create a SavingsAccount. Error: ${error}`,
+    });
+  }
+});
+
+router.delete("/savingsAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await savingsAccountController.deleteSavingsAccountById(id);
+    res.json({
+      result: "ok",
+      message: "Delete a SavingsAccount successfully",
+      id: id,
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Delete a SavingsAccount failed. Error: ${error}`,
+    });
+  }
+});
+
+router.put("/savingsAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    //Check bankAccount
+    if (req.body.BankAccountId != null) {
+      let bankAccount = await bankAccountController.FindBankAccountByID(
+        req.body.BankAccountId
+      );
+      if (bankAccount == null)
+        res.json({
+          result: "failed",
+          message:
+            "BankAccount invaiable. Please choose another bankAccount ID",
+        });
+    }
+    let savingsAccount = await savingsAccountController.FindSavingsAccountByID(
+      id
+    );
+    if (savingsAccount) {
+      await savingsAccountController.updateSavingsAccount(
+        savingsAccount,
+        req.body
+      );
+      res.json({
+        result: "ok",
+        data: savingsAccount,
+        message: "Update a SavingsAccount successfully",
+      });
+    } else {
+      res.json({
+        result: "failed",
+        data: {},
+        message: "Cannot find SavingsAccount to update",
+      });
+    }
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Cannot update a SavingsAccount. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/savingsAccounts", async (req, res) => {
+  try {
+    const savingsAccounts = await savingsAccountController.FindAll();
+    res.json({
+      result: "ok",
+      SavingsAccount: savingsAccounts,
+      length: savingsAccounts.length,
+      message: "query list of SavingsAccounts successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      savingsAccounts: [],
+      length: 0,
+      message: `query list of SavingsAccounts failed. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/savingsAccountsByUserId/:BankAccountId", async (req, res) => {
+  console.log(req.params);
+  try {
+    const savingsAccounts = await savingsAccountController.FindSavingsAccountByBankAccountId(
+      req.params.BankAccountId
+    );
+    res.json({
+      result: "ok",
+      SavingsAccount: savingsAccounts,
+      length: savingsAccounts.length,
+      message: "query list of SavingsAccounts successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      savingsAccounts: [],
+      length: 0,
+      message: `query list of SavingsAccounts failed. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/savingBooksByBankCardNumber/:bankCardNumber", async (req, res) => {
+  console.log(req.params);
+  try {
+    const savingBooks = await bankSavingBookController.FindSavingAccountsByBankCardNumber(
+      req.params.bankCardNumber
+    );
+    res.json({
+      result: "ok",
+      savingBooks: savingBooks,
+      length: savingBooks.length,
+      message: "query list of SavingBooks successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      savingBooks: [],
+      length: 0,
+      message: `query list of SavingBooks failed. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/savingBooksById/:id", async (req, res) => {
+  console.log(req.params);
+  try {
+    const savingBooks = await bankSavingBookController.FindBankSavingBookByID(
+      req.params.id
+    );
+    res.json({
+      result: "ok",
+      savingBook: savingBooks,
+      length: savingBooks.length,
+      message: "query SavingBook successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      savingBook: {},
+      length: 0,
+      message: `query SavingBook failed. Error: ${error}`,
+    });
+  }
+});
+
+router.get("/savingsAccounts/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const savingsAccount = await savingsAccountController.FindSavingsAccountByID(
+      id
+    );
+    savingsAccount
+      ? res.json({
+          result: "ok",
+          savingsAccount: savingsAccount,
+          message: "query a savingsAccount successfully",
+        })
+      : res.json({
+          result: "failed",
+          savingsAccount: {},
+          message: "savingsAccount unvaiable",
+        });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      savingsAccount: [],
+      length: 0,
+      message: `query a SavingsAccount failed. Error: ${error}`,
+    });
+  }
+});
+router.get("/rateInterests", async (req, res) => {
+  try {
+    const rateInterests = await rateInterestController.FindAll();
+    res.json({
+      result: "ok",
+      rateInterest: rateInterests,
+      length: rateInterests.length,
+      message: "query list of RateInterests successfully",
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      rateInterest: [],
+      length: 0,
+      message: `query list of RateInterests failed. Error: ${error}`,
+    });
+  }
+});
 
 module.exports = router;
