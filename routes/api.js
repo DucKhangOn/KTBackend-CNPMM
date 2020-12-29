@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
+const format = require("date-format");
 
 //Controller
 const userController = require("../controllers/userController");
@@ -754,7 +755,6 @@ async function addLinkedListForSavingBookReview(
   //Nếu có biến withdrawalDate thì tiến hành tính tiền và chuyển isFinalSettlement thành true
   //Kích hoạt childOf để đẩy
   //Tăng length mỗi lần tạo thêm tk mới
-
   if (
     format.asString("MM-dd-yyyy", rootSavingAccount.depositDate) ==
     withdrawalDate
@@ -1252,6 +1252,32 @@ router.get("/savingsAccounts/:id", async (req, res) => {
     });
   }
 });
+
+//Methor Post
+router.post("/rateInterests", async (req, res) => {
+  const data = req.body.rateInterest;
+  console.log(data);
+  try {
+    const result = await rateInterestController.addNewRateInterest(
+      data.day,
+      data.month,
+      data.year,
+      data.term,
+      data.rateInterest
+    );
+    res.json({
+      mess: "hello",
+      rateInterest: result,
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      rateInterest: {},
+      message: `Create new RateInterest failed. Error: ${error}`,
+    });
+  }
+});
+
 router.get("/rateInterests", async (req, res) => {
   try {
     const rateInterests = await rateInterestController.FindAll();
