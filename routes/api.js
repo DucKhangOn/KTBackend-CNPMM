@@ -1297,4 +1297,22 @@ router.get("/rateInterests", async (req, res) => {
   }
 });
 
+router.delete("/rateInterests/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await rateInterestController.deleteRateInterestById(id);
+    res.json({
+      result: "ok",
+      message: "Delete a RateInterest successfully",
+      id: id,
+    });
+  } catch (error) {
+    res.json({
+      result: "failed",
+      data: {},
+      message: `Delete a RateInterest failed. Error: ${error}`,
+    });
+  }
+});
+
 module.exports = router;
